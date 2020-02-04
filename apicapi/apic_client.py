@@ -358,7 +358,7 @@ class ManagedObjectClass(object):
     prefix_to_mos['tag'] = 'tagInst'
     prefix_to_mos['vzSubj'] = 'subj'
 
-    mos_to_prefix = {v: k for k, v in prefix_to_mos.iteritems()}
+    mos_to_prefix = {v: k for k, v in prefix_to_mos.items()}
 
     # Note(Henry): The use of a mutable default argument _inst_cache is
     # intentional. It persists for the life of MoClass to cache instances.
@@ -493,8 +493,12 @@ class ApicSession(object):
                 return request(self.api_base[0] + url, verify=self.verify,
                                timeout=self.request_timeout, **kwargs)
             except FALLBACK_EXCEPTIONS as ex:
+                if hasattr(ex, 'message'):
+                    err_str = ex.message
+                else:
+                    err_str = ex
                 LOG.info(('%s, falling back to a '
-                          'new address'), ex.message)
+                          'new address'), err_str)
                 self.api_base.rotate(-1)
                 LOG.info(('New controller address: %s '), self.api_base[0])
         return request(self.api_base[0] + url, verify=self.verify, **kwargs)
@@ -543,8 +547,8 @@ class ApicSession(object):
         """Send a request and process the response."""
         curr_call = time.time()
         try:
-            time.sleep((self.sleep + sleep_offset) -
-                       (curr_call - self.last_call))
+            time.sleep(max((self.sleep + sleep_offset) -
+                       (curr_call - self.last_call), 0))
         except IOError:
             # Negative sleep value
             pass
@@ -855,7 +859,7 @@ class ManagedObjectAccess(object):
 
     def list_all(self, **data):
         imdata = self.session.list_mo(self.mo, **data)
-        return filter(None, [self._mo_attributes(obj) for obj in imdata])
+        return list(filter(None, [self._mo_attributes(obj) for obj in imdata]))
 
     def list_names(self, **data):
         return [obj['name'] for obj in self.list_all(**data)]

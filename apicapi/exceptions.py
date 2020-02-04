@@ -30,7 +30,11 @@ class ApicException(Exception):
             super(ApicException, self).__init__(self.message)
 
     def __unicode__(self):
-        return unicode(self.msg)
+        try:
+            strencode = unicode
+        except NameError:
+            strencode = str
+        return strencode(self.msg)
 
 
 class InvalidConfig(ApicException):

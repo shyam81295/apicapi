@@ -262,7 +262,8 @@ class TestCiscoApicManager(base.BaseTestCase,
 
         switch_dict_copy = copy.deepcopy(self.mgr.switch_dict)
         for value in switch_dict_copy.values():
-            for key in value.keys():
+            valuecopy = copy.deepcopy(value)
+            for key in valuecopy.keys():
                 if key == 'pod_id':
                     del value[key]
 
@@ -326,7 +327,8 @@ class TestCiscoApicManager(base.BaseTestCase,
 
         switch_dict_copy = copy.deepcopy(self.mgr.switch_dict)
         for value in switch_dict_copy.values():
-            for key in value.keys():
+            valuecopy = copy.deepcopy(value)
+            for key in valuecopy.keys():
                 if key == 'pod_id':
                     del value[key]
 

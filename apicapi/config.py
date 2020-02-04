@@ -192,7 +192,11 @@ def valid_path(key, value, **kwargs):
         __import__(value)
         sys.modules[value].HostLink
     except Exception as e:
-        ConfigValidator.RaiseUtils(value, key).re(reason=e.message)
+        if hasattr(e, 'message'):
+            err_str = e.message
+        else:
+            err_str = e
+        ConfigValidator.RaiseUtils(value, key).re(reason=err_str)
 
 
 def not_null(key, value, **kwargs):
@@ -233,7 +237,11 @@ def valid_ip(key, value, **kwargs):
     try:
         netaddr.IPAddress(value, version=4)
     except netaddr.AddrFormatError as e:
-        util.re(reason=e.message)
+        if hasattr(e, 'message'):
+            err_str = e.message
+        else:
+            err_str = e
+        util.re(reason=err_str)
 
 
 def valid_ip_range(key, value, **kwargs):
@@ -434,7 +442,8 @@ def create_switch_dictionary():
                 switch_dict[switch_id]['pod_id'] = port[0]
                 continue
             hosts = host_list.split(',')
-            hosts = map(lambda a: a.decode('string_escape'), hosts)
+            hosts = list(map(lambda a: a.encode(), hosts))
+            hosts = list(map(lambda a: a.decode('unicode_escape'), hosts))
             port = port[0]
             switch_dict[switch_id][port] = (
                 switch_dict[switch_id].get(port, []) + hosts)
